@@ -38,3 +38,13 @@ Unix - It's user friendly.  It's just picky about its friends.
   those.  TrueOS itself is to some extent an ongoing project of maintaining a
   more purpose-specific spin-off of FreeBSD, though the name is applicable to a
   couple of subprojects with different purposes.
+
+To view website work-in-progress in a browser:
+
+    $ cd UnixLike
+    $ zola serve                    # load localhost:12121
+    $ w3m http://127.0.0.1:1111/    # or replace w3m with other browser
+
+[Zola Documentation][zoladoc]
+
+[zoladoc]: https://www.getzola.org/documentation/getting-started/directory-structure/
