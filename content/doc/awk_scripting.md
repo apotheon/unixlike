@@ -27,3 +27,5 @@ Harvested from StackOverflow (yes, occasionally there's something useful in that
     "exec" "awk" "-f" "$0" "$@" && 0 {}
 
 That's right: we can get around this problem by using a standard shell shebang line and executing awk from within the script.
+
+TO BE CONTINUED: This article is not yet finished.
