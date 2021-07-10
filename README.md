@@ -41,7 +41,6 @@ Unix - It's user friendly.  It's just picky about its friends.
 
 To view website work-in-progress in a browser:
 
-    $ cd UnixLike
     $ zola serve                    # load localhost:12121
     $ w3m http://127.0.0.1:1111/    # or replace w3m with other browser
 
