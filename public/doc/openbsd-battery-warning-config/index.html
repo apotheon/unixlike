@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Unix Like Us</title>
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+
+  <body>
+    <section class="section">
+      <div class="container">
+        
+        <ul class="link nav">
+      <li><a href="/">/</a></li>
+      <li><a href="/about">/about</a></li>
+      <li><a href="/doc">/doc</a></li>
+    </ul>
+
+    <ul class="link nav">
+      <li><a href="https://bsd.unixlike.us">bsd.</a></li>
+    </ul>
+
+
+    <div class="header">
+      <h1 class="title">OpenBSD Battery Warning Config</h1>
+    </div>
+
+
+      <div class="content">
+        <p>Battery warnings are kind of a good thing on laptops.  There was a time when ThinkPads were made to produce an audible low battery level warning, but that time seems to have passed.</p>
+<p>Looking into options for configuring a low battery level warning on a ThinkPad T450s running OpenBSD 6.8 led to discovery of a helpful file:</p>
+<pre><code>/etc/sensorsd.conf
+</code></pre>
+<p>If it does not exist on your OpenBSD system, just create it to make this work.</p>
+<p>A nice audio file playing the sound of a temple bell seemed appropriate for the purpose of indicating low battery charge.  It makes a nicely mellow but pretty unignorable audible alert sound.  Pick your own sound as needed.</p>
+<p>This is the full content of the <code>sensorsd.conf</code> file:</p>
+<pre><code>hw.sensors.acpibat0.watthour3:low=6.00Wh:command=/usr/bin/aucat -i /root/audio/temple_bell.wav
+</code></pre>
+<p>The ThinkPad T450s has two batteries, one internal and one more traditionally user-removable.  The sysctl utility can be used to find information about battery sensor data.  The following command is designed to whittle down the results to a manageable subset of sensor related kernel state components:</p>
+<pre><code>$ sysctl hw.sensors|grep watthour
+hw.sensors.acpibat0.watthour0=20.41 Wh (last full capacity)
+hw.sensors.acpibat0.watthour1=1.02 Wh (warning capacity)
+hw.sensors.acpibat0.watthour2=0.20 Wh (low capacity)
+hw.sensors.acpibat0.watthour3=19.40 Wh (remaining capacity), OK
+hw.sensors.acpibat0.watthour4=23.20 Wh (design capacity)
+hw.sensors.acpibat1.watthour0=20.17 Wh (last full capacity)
+hw.sensors.acpibat1.watthour1=1.01 Wh (warning capacity)
+hw.sensors.acpibat1.watthour2=0.20 Wh (low capacity)
+hw.sensors.acpibat1.watthour3=19.32 Wh (remaining capacity), OK
+hw.sensors.acpibat1.watthour4=23.48 Wh (design capacity)
+</code></pre>
+<p>The <code>acpibat0</code> component indicates the internal battery, and the <code>acpibat1</code> component indicates the externally attached battery.  The important value for determining currently remaining battery power is <code>watthour3</code>, and because <code>acpibat0</code> is the last battery to drain away that is the choice for giving fair warning that there is not much time left before the laptop dies for lack of power.  This is how we get this part of the above config line in <code>sensrosd.conf</code>, indicating what sensor value the sensor monitoring daemon should watch:</p>
+<pre><code>hw.sensors.acpibat0.watthour3
+</code></pre>
+<p>The <code>low=6.00Wh</code> indicates the threshold below which the alert should sound.  A low of six Watt-hours seems appropriate, as about 15% of the total design capacity of both batteries put together.</p>
+<p>This command from the config uses the <code>aucat</code> utility to play the audio file:</p>
+<pre><code>command=/usr/bin/aucat -i /root/audio/temple_bell.wav
+</code></pre>
+<p>Read <code>sensorsd.conf(5)</code> for more details on what configuration options are available.</p>
+<p>To ensure this works, enable <code>sensorsd</code> (the sensor monitoring daemon) in <code>/etc/rc.conf.local</code> by adding this line:</p>
+<pre><code>sensorsd_flags=
+</code></pre>
+<p>Yes, it's fine to have nothing after the equal sign.  What follows the equal sign is any options associated with the relevant daemon command name.  You can check what options are available in the daemon's manpage.  In the case of the sensor monitoring daemon, of course, that manpage would be <code>sensorsd(8)</code>.</p>
+<p>It also might be worthwhile to adjust the <code>apmd</code> polling interval, because the alert will sound not only when you first cross the threshold set in <code>/etc/sensorsd.conf</code> but also periodically, about the length of the polling interval.  Just add something like <code>-t 32</code> to the <code>apmd_flags=</code> line of your <code>/etc/rc.conf.local</code>, where the number 32 is the number of seconds of the interval.  The default is once per ten minutes, if you do not set a number of seconds yourself, according to the manpage on this T450s.</p>
+<p>You might also use the <code>-c</code> option of <code>sensorsd</code>, described in the <code>sensorsd(8)</code> manpage.  The default for <code>sensorsd</code> is 20 seconds according to the manpage here.  The actual time between incidents of the audio file playing with be a result of an interaction between these two polling periods, so if you want a settled and stable period between sounds you should probably set both periods to the same amount of time or set one of them to a multiple of the other.  Whatever values you give them, though, the sound should play at an interval of no more than the sum of the two configured intervals.</p>
+<p>One quirk of the way <code>/etc/sensorsd.conf</code> configured events work is that, the way the audio config described here is written, the sound does not only play when battery level is below the low threshold.  It also plays once shortly after <code>sensorsd</code> starts.  This means it plays when you reboot the computer, for instance, or (re)start the sensor monitoring daemon at the command line.  To avoid this requires writing some (perhaps slightly complicated) script or two, and running that script from your <code>/etc/sensorsd.conf</code>, perhaps a daemon that manages when and what to do as battery levels get low.  Doing so requires more work, introduces more complexity, and potentially drains battery ever so slightly faster, though.  It also raises the question of why you might bother to use <code>sensorsd</code> at all, instead of just running your own daemon to handle everything.</p>
+
+
+        <p class="subtitle"><strong>2020-12-02</strong></p>
+      </div>
+
+      </div>
+    </section>
+
+    <div class="footer">
+      <div>[ Content Terms: <a href="http://copyfree.org/content/standard/licenses/coil/license.txt">COIL</a> ]</div>
+      <div>[ Those who do not understand Unix are condemned to reinvent it poorly. ]</div>
+    </div>
+  </body>
+</html>

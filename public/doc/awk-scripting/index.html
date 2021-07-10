@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Unix Like Us</title>
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+
+  <body>
+    <section class="section">
+      <div class="container">
+        
+        <ul class="link nav">
+      <li><a href="/">/</a></li>
+      <li><a href="/about">/about</a></li>
+      <li><a href="/doc">/doc</a></li>
+    </ul>
+
+    <ul class="link nav">
+      <li><a href="https://bsd.unixlike.us">bsd.</a></li>
+    </ul>
+
+
+    <div class="header">
+      <h1 class="title">Scripting With awk</h1>
+    </div>
+
+
+      <div class="content">
+        <p>The awk scripting language is an oft-overlooked tool in the Unix toolkit.  One (harmful) consequence of this state of affairs is the invention of Bash, as awk is the natural fit for that niche between sh and a more generalized programming language.</p>
+<p>One might be forgiven for thinking awk is actually unsuitable for portable scripting, though, and thus coming to the conclusion that one might as well just write a Bash script.  After all, even if Bash is not readily available everywhere (thus destroying some level of portability), at least you can use a shebang line for Bash scripts that is portable on any system that has Bash installed:</p>
+<pre><code>#!/usr/bin/env bash
+</code></pre>
+<p>Doing the same with awk does not work.  A working awk shebang line depends on where awk is installed on the system.  Compare two common examples:</p>
+<pre><code>#!/bin/awk -f
+
+#!/usr/bin/awk -f
+</code></pre>
+<p>The problem here is obvious: without env, you need a different shebang line, which means the script itself must be edited to port it between systems with different &quot;standards&quot; for filesystem placement of tools such as awk.  Obviously, the One True Way to organize the filesystem hierarchy would result in the <code>#!/usr/bin/awk -f</code> shebang line, but some less Unix-like systems clearly violate such standards of good taste.</p>
+<p>Most Unix-like systems do not handle options well enough to include the <code>-f</code> option in an <code>env</code> based shebang line, so we're stuck.  We can't have a portable awk script executed simply by filename in <code>$PATH</code>.</p>
+<p>Actually, we can.  &quot;Think outside the box.&quot;  If you never had a teacher tell you that, you never had a real teacher.</p>
+<p>Harvested from StackOverflow (yes, occasionally there's something useful in that cesspool), we find this beauty of indirection:</p>
+<pre><code>#!/bin/sh
+&quot;exec&quot; &quot;awk&quot; &quot;-f&quot; &quot;$0&quot; &quot;$@&quot; &amp;&amp; 0 {}
+</code></pre>
+<p>That's right: we can get around this problem by using a standard shell shebang line and executing awk from within the script.</p>
+
+
+        <p class="subtitle"><strong>2021-07-09</strong></p>
+      </div>
+
+      </div>
+    </section>
+
+    <div class="footer">
+      <div>[ Content Terms: <a href="http://copyfree.org/content/standard/licenses/coil/license.txt">COIL</a> ]</div>
+      <div>[ Those who do not understand Unix are condemned to reinvent it poorly. ]</div>
+    </div>
+  </body>
+</html>
