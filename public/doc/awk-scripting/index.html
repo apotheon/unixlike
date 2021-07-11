@@ -1,43 +1,73 @@
-<html>
-    <head>
-        <title>Zola</title>
-    </head>
-    <body>
-        <div class="container">
-            <h1>Welcome to Zola!</h1>
-            <p>
-                You're seeing this page because we couldn't find a template to render.
-            </p>
-            <p>
-                To modify this page, create a <b>page.html</b> file in the templates directory or
-                <a href="https://www.getzola.org/documentation/themes/installing-and-using-themes/" target="_blank">install a theme</a>.
-                <br>
-                You can find what variables are available in this template in the <a href="https:&#x2F;&#x2F;www.getzola.org&#x2F;documentation&#x2F;templates&#x2F;pages-sections&#x2F;#page-variables" target="_blank">documentation</a>.
-            </p>
-        </div>
-        <footer>
-            <a href="https://www.getzola.org/documentation/getting-started/cli-usage/" target="_blank">Get started with Zola</a>
-        </footer>
-        <style>
-            html {
-                line-height: 1.5;
-            }
-            h1 {
-                margin-bottom: 2rem;
-            }
-            .container {
-                font-family: "sans-serif";
-                text-align: center;
-                margin-top: 20vh;
-                padding: 2rem;
-                background: #e9e9e9;
-            }
-            footer {
-                position: fixed;
-                width: 100%;
-                bottom: 1rem;
-                text-align: center;
-            }
-        </style>
-    <script src="/livereload.js?port=1024&amp;mindelay=10"></script></body>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Unix Like Us</title>
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+
+  <body>
+    <section class="section">
+      <div class="container">
+        
+        <ul class="link nav">
+      <li><a href="/">/</a></li>
+      <li><a href="/about">/about</a></li>
+      <li><a href="/doc">/doc</a></li>
+    </ul>
+
+    <ul class="link nav">
+      <li><a href="https://bsd.unixlike.us">bsd.</a></li>
+    </ul>
+
+
+    <div class="header">
+      <h1 class="title">Scripting With awk</h1>
+    </div>
+
+
+      <div class="content">
+        <p>The awk scripting language is an oft-overlooked tool in the Unix toolkit.  One (harmful) consequence of this state of affairs is the invention of Bash, as awk is the natural fit for that niche between sh and a more generalized programming language.</p>
+<p>One might be forgiven for thinking awk is actually unsuitable for portable scripting, though, and thus coming to the conclusion that one might as well just write a Bash script.  After all, even if Bash is not readily available everywhere (thus destroying some level of portability), at least you can use a shebang line for Bash scripts that is portable on any system that has Bash installed:</p>
+<pre><code>#!/usr/bin/env bash
+</code></pre>
+<p>Doing the same with awk does not work.  A working awk shebang line depends on where awk is installed on the system.  Compare two common examples:</p>
+<pre><code>#!/bin/awk -f
+
+#!/usr/bin/awk -f
+</code></pre>
+<p>The problem here is obvious: without env, you need a different shebang line, which means the script itself must be edited to port it between systems with different &quot;standards&quot; for filesystem placement of tools such as awk.  Obviously, the One True Way to organize the filesystem hierarchy would result in the <code>#!/usr/bin/awk -f</code> shebang line, but some less Unix-like systems clearly violate such standards of good taste.</p>
+<p>Most Unix-like systems do not handle options well enough to include the <code>-f</code> option in an <code>env</code> based shebang line, so we're stuck.  We can't have a portable awk script executed simply by filename in <code>$PATH</code>.</p>
+<p>Actually, we can.  &quot;Think outside the box.&quot;  If you never had a teacher tell you that, you never had a real teacher.</p>
+<p><a href="https://unix.stackexchange.com/questions/361794/why-am-i-able-to-pass-arguments-to-usr-bin-env-in-this-case#answer-361796">Harvested from StackExchange</a> (yes, occasionally there's something useful in that cesspool), we find this beauty of indirection:</p>
+<pre><code>#!/bin/sh
+&quot;exec&quot; &quot;awk&quot; &quot;-f&quot; &quot;$0&quot; &quot;$@&quot; &amp;&amp; 0 {}
+</code></pre>
+<p>That's right: we can get around this problem by using a standard shell shebang line and executing awk from within the script.  (See that page for a note about truly ancient Unices.)</p>
+<p>The line immediately following the shebang line might need a little more explanation.  Assume a file with the above shebang line trickery with the name <code>example.awk</code>.</p>
+<p>First of all, both lines are valid POSIX standard shell and valid POSIX standard awk at the same time.  When executed, the <code>sh</code> executable gets invoked to interpret the contents of the file, which leads to invoking the shell's <code>exec</code> builtin, which in turn replaces the shell process with the awk process created by its own following argument, <code>awk</code>, with <code>-f</code> as its first parameter; that option takes a filename argument.  In this case, the argument <code>$0</code> specifies the the <code>example.awk</code> file, and <code>$@</code> passes along any positional parameters following the user's initial command line input of the filename.  Thus, assume the user entered this:</p>
+<pre><code>$ example.awk foo bar
+</code></pre>
+<p>In that case, <code>$0</code> gets replaced by <code>example.awk</code>, and <code>$@</code> gets replaced by <code>foo bar</code>.</p>
+<p>In short, the entire above process becomes the following stepwise process.</p>
+<ol>
+<li>Execute <code>/bin/sh</code> with arguments <code>foo bar</code> and feed it the contents of this file to interpret and execute.</li>
+<li>Replace variables with their values, so that the line following the shebang becomes <code>&quot;exec&quot; &quot;awk&quot; &quot;-f&quot; &quot;example.awk&quot; &quot;foo&quot; &quot;bar&quot; &amp;&amp; 0 {}</code></li>
+<li>Execute the <code>exec</code> command to replace the <code>sh</code> process with a new <code>awk</code> process, with arguments <code>-f example.awk foo bar</code>, specifying <code>example.awk</code> as the script file <code>awk</code> should read and passing <code>foo bar</code> along as a paramter for the script.</li>
+</ol>
+<p>In awk syntax, the shebang line itself is discarded as a comment.  The following line contains a series of strings, which means that line would result in producing a nonzero value, which would result in default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this article: learn awk for more detail).  By attaching <code>&amp;&amp; 0 {}</code> at the end, we change the final value of the line, preventing that duplication of input in awk script output.</p>
+<p class="subtitle signature">by <strong>apotheon</strong> and <strong>zenema</strong</p>
+
+
+        <p class="subtitle"><strong>2021-07-09</strong></p>
+      </div>
+
+      </div>
+    </section>
+
+    <div class="footer">
+      <div>[ Content Terms: <a href="http://copyfree.org/content/standard/licenses/coil/license.txt">COIL</a> ]</div>
+      <div>[ Those who do not understand Unix are condemned to reinvent it poorly. ]</div>
+    </div>
+  <script src="/livereload.js?port=1024&amp;mindelay=10"></script></body>
 </html>
