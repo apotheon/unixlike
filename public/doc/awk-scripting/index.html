@@ -55,7 +55,7 @@
 <li>Execute the <code>exec</code> command to replace the <code>sh</code> process with a new <code>awk</code> process, with arguments <code>-f example.awk foo bar</code>, specifying <code>example.awk</code> as the script file <code>awk</code> should read and passing <code>foo bar</code> along as a paramter for the script.</li>
 </ol>
 <p>In awk syntax, the shebang line itself is discarded as a comment.  The following line contains a series of strings, which means that line would result in producing a nonzero value, which would result in default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this article: learn awk for more detail).  By attaching <code>&amp;&amp; 0 {}</code> at the end, we change the final value of the line, preventing that duplication of input in awk script output.</p>
-<p class="subtitle signature">by <strong>apotheon</strong></p>
+<p class="subtitle signature">by <strong>apotheon</strong> and <strong>zenema</strong</p>
 
 
         <p class="subtitle"><strong>2021-07-09</strong></p>

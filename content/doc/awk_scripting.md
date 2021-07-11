@@ -42,4 +42,4 @@ In short, the entire above process becomes the following stepwise process.
 
 In awk syntax, the shebang line itself is discarded as a comment.  The following line contains a series of strings, which means that line would result in producing a nonzero value, which would result in default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this article: learn awk for more detail).  By attaching `&& 0 {}` at the end, we change the final value of the line, preventing that duplication of input in awk script output.
 
-<p class="subtitle signature">by <strong>apotheon</strong></p>
+<p class="subtitle signature">by <strong>apotheon</strong> and <strong>zenema</strong</p>
