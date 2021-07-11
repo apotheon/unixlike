@@ -1,5 +1,5 @@
 +++
-title = 'Scripting With awk'
+title = 'scripting with awk'
 date = 2021-07-09
 +++
 
