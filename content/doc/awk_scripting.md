@@ -21,12 +21,14 @@ Most Unix-like systems do not handle options well enough to include the `-f` opt
 
 Actually, we can.  "Think outside the box."  If you never had a teacher tell you that, you never had a real teacher.
 
-Harvested from StackOverflow (yes, occasionally there's something useful in that cesspool), we find this beauty of indirection:
+[Harvested from StackExchange][gilles] (yes, occasionally there's something useful in that cesspool), we find this beauty of indirection:
 
     #!/bin/sh
     "exec" "awk" "-f" "$0" "$@" && 0 {}
 
-That's right: we can get around this problem by using a standard shell shebang line and executing awk from within the script.  The line immediately following the shebang line might need a little more explanation, though.  Assume a file with the above shebang line trickery with the name `example.awk`.
+That's right: we can get around this problem by using a standard shell shebang line and executing awk from within the script.  (See that page for a note about truly ancient Unices.)
+
+The line immediately following the shebang line might need a little more explanation.  Assume a file with the above shebang line trickery with the name `example.awk`.
 
 First of all, both lines are valid POSIX standard shell and valid POSIX standard awk at the same time.  When executed, the `sh` executable gets invoked to interpret the contents of the file, which leads to invoking the shell's `exec` builtin, which in turn replaces the shell process with the awk process created by its own following argument, `awk`, with `-f` as its first parameter; that option takes a filename argument.  In this case, the argument `$0` specifies the the `example.awk` file, and `$@` passes along any positional parameters following the user's initial command line input of the filename.  Thus, assume the user entered this:
 
@@ -43,3 +45,5 @@ In short, the entire above process becomes the following stepwise process.
 In awk syntax, the shebang line itself is discarded as a comment.  The following line contains a series of strings, which means that line would result in producing a nonzero value, which would result in default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this article: learn awk for more detail).  By attaching `&& 0 {}` at the end, we change the final value of the line, preventing that duplication of input in awk script output.
 
 <p class="subtitle signature">by <strong>apotheon</strong> and <strong>zenema</strong</p>
+
+[gilles]: https://unix.stackexchange.com/questions/361794/why-am-i-able-to-pass-arguments-to-usr-bin-env-in-this-case#answer-361796
