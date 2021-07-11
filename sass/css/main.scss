@@ -154,6 +154,13 @@ div.content {
   padding-top: 0em;
 }
 
+p.signature {
+  margin-top: 2em;
+  margin-bottom: 0em;
+  border-top: thin dashed green;
+  padding-top: 0.5em;
+}
+
 @media screen and (max-width: 800px) {
   .column {
     width: 100%;
