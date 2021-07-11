@@ -45,14 +45,14 @@
 </code></pre>
 <p>That's right: we can get around this problem by using a standard shell shebang line and executing awk from within the script.  The line immediately following the shebang line might need a little more explanation, though.  Assume a file with the above shebang line trickery with the name <code>example.awk</code>.</p>
 <p>First of all, both lines are valid POSIX standard shell and valid POSIX standard awk at the same time.  When executed, the <code>sh</code> executable gets invoked to interpret the contents of the file, which leads to invoking the shell's <code>exec</code> builtin, which in turn replaces the shell process with the awk process created by its own following argument, <code>awk</code>, with <code>-f</code> as its first parameter; that option takes a filename argument.  In this case, the argument <code>$0</code> specifies the the <code>example.awk</code> file, and <code>$@</code> passes along any positional parameters following the user's initial command line input of the filename.  Thus, assume the user entered this:</p>
-<pre><code>$ example.awk foobar
+<pre><code>$ example.awk foo bar
 </code></pre>
-<p>In that case, <code>$0</code> gets replaced by <code>example.awk</code>, and <code>$@</code> gets replaced by <code>foobar</code>.</p>
+<p>In that case, <code>$0</code> gets replaced by <code>example.awk</code>, and <code>$@</code> gets replaced by <code>foo bar</code>.</p>
 <p>In short, the entire above process becomes the following stepwise process.</p>
 <ol>
-<li>Execute <code>/bin/sh</code> with argument <code>foobar</code> and feed it the contents of this file to interpret and execute.</li>
-<li>Replace variables with their values, so that the line following the shebang becomes <code>&quot;exec&quot; &quot;awk&quot; &quot;-f&quot; &quot;example.awk&quot; &quot;foobar&quot; &amp;&amp; 0 {}</code></li>
-<li>Execute the <code>exec</code> command to replace the <code>sh</code> process with a new <code>awk</code> process, with arguments <code>-f example.awk foobar</code>, specifying <code>example.awk</code> as the script file <code>awk</code> should read and passing <code>foobar</code> along as a paramter for the script.</li>
+<li>Execute <code>/bin/sh</code> with arguments <code>foo bar</code> and feed it the contents of this file to interpret and execute.</li>
+<li>Replace variables with their values, so that the line following the shebang becomes <code>&quot;exec&quot; &quot;awk&quot; &quot;-f&quot; &quot;example.awk&quot; &quot;foo&quot; &quot;bar&quot; &amp;&amp; 0 {}</code></li>
+<li>Execute the <code>exec</code> command to replace the <code>sh</code> process with a new <code>awk</code> process, with arguments <code>-f example.awk foo bar</code>, specifying <code>example.awk</code> as the script file <code>awk</code> should read and passing <code>foo bar</code> along as a paramter for the script.</li>
 </ol>
 <p>In awk syntax, the shebang line itself is discarded as a comment.  The following line contains a series of strings, which means that line would result in producing a nonzero value, which would result in default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this article: learn awk for more detail).  By attaching <code>&amp;&amp; 0 {}</code> at the end, we change the final value of the line, preventing that duplication of input in awk script output.</p>
 <p class="subtitle signature">by <strong>apotheon</strong></p>

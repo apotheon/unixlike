@@ -30,15 +30,15 @@ That's right: we can get around this problem by using a standard shell shebang l
 
 First of all, both lines are valid POSIX standard shell and valid POSIX standard awk at the same time.  When executed, the `sh` executable gets invoked to interpret the contents of the file, which leads to invoking the shell's `exec` builtin, which in turn replaces the shell process with the awk process created by its own following argument, `awk`, with `-f` as its first parameter; that option takes a filename argument.  In this case, the argument `$0` specifies the the `example.awk` file, and `$@` passes along any positional parameters following the user's initial command line input of the filename.  Thus, assume the user entered this:
 
-    $ example.awk foobar
+    $ example.awk foo bar
 
-In that case, `$0` gets replaced by `example.awk`, and `$@` gets replaced by `foobar`.
+In that case, `$0` gets replaced by `example.awk`, and `$@` gets replaced by `foo bar`.
 
 In short, the entire above process becomes the following stepwise process.
 
-1. Execute `/bin/sh` with argument `foobar` and feed it the contents of this file to interpret and execute.
-2. Replace variables with their values, so that the line following the shebang becomes `"exec" "awk" "-f" "example.awk" "foobar" && 0 {}`
-2. Execute the `exec` command to replace the `sh` process with a new `awk` process, with arguments `-f example.awk foobar`, specifying `example.awk` as the script file `awk` should read and passing `foobar` along as a paramter for the script.
+1. Execute `/bin/sh` with arguments `foo bar` and feed it the contents of this file to interpret and execute.
+2. Replace variables with their values, so that the line following the shebang becomes `"exec" "awk" "-f" "example.awk" "foo" "bar" && 0 {}`
+2. Execute the `exec` command to replace the `sh` process with a new `awk` process, with arguments `-f example.awk foo bar`, specifying `example.awk` as the script file `awk` should read and passing `foo bar` along as a paramter for the script.
 
 In awk syntax, the shebang line itself is discarded as a comment.  The following line contains a series of strings, which means that line would result in producing a nonzero value, which would result in default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this article: learn awk for more detail).  By attaching `&& 0 {}` at the end, we change the final value of the line, preventing that duplication of input in awk script output.
 
