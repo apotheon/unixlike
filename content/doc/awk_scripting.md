@@ -41,3 +41,5 @@ In short, the entire above process becomes the following stepwise process.
 2. Execute the `exec` command to replace the `sh` process with a new `awk` process, with arguments `-f example.awk foobar`, specifying `example.awk` as the script file `awk` should read and passing `foobar` along as a paramter for the script.
 
 In awk syntax, the shebang line itself is discarded as a comment.  The following line contains a series of strings, which means that line would result in producing a nonzero value, which would result in default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this article: learn awk for more detail).  By attaching `&& 0 {}` at the end, we change the final value of the line, preventing that duplication of input in awk script output.
+
+<p class="subtitle" style="margin-top: 2em; margin-bottom: 0em; border-top: thin solid green;">by <strong>apotheon</strong></p>
