@@ -56,6 +56,15 @@
 <li>Execute the <code>exec</code> command to replace the <code>sh</code> process with a new <code>awk</code> process, with arguments <code>-f example.awk foo bar</code>, specifying <code>example.awk</code> as the script file <code>awk</code> should read and passing <code>foo bar</code> along as a paramter for the script.</li>
 </ol>
 <p>In awk syntax, the shebang line itself is discarded as a comment.  The following line contains a series of strings, which means that line would result in producing a nonzero value, which would result in default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this article: learn awk for more detail).  By attaching <code>&amp;&amp; 0 {}</code> at the end, we change the final value of the line, preventing that duplication of input in awk script output.</p>
+<h2 id="awkward-portability">Awkward Portability</h2>
+<p>A nicer approach would be broad implementation for a POSIX standard version of either awk or env that behaves appropriately for a portable awk shebang line.  Until that day comes -- with both POSIX standard support and sufficiently broad implementation support -- various other forms of trickery may come close.  The following example of another bit of such trickery employs an awk wrapper script.  Create an executable file in your <code>$PATH</code> with the following contents:</p>
+<pre><code>#!/bin/sh
+awk -f $@
+</code></pre>
+<p>Call this file &quot;awkward&quot;, in the same sense that &quot;starward&quot; means &quot;at or toward the stars&quot;.  With that in place, this shebang line works well:</p>
+<pre><code>#!/usr/bin/env awkward
+</code></pre>
+<p>You're welcome.</p>
 <p class="subtitle signature">by <strong>apotheon</strong> and <strong>zenema</strong</p>
 
 
