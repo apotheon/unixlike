@@ -1,5 +1,5 @@
 +++
-title = 'OpenBSD Battery Warning Config'
+title = 'OpenBSD battery warning config'
 date = 2020-12-02
 +++
 
