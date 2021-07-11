@@ -44,6 +44,19 @@ In short, the entire above process becomes the following stepwise process.
 
 In awk syntax, the shebang line itself is discarded as a comment.  The following line contains a series of strings, which means that line would result in producing a nonzero value, which would result in default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this article: learn awk for more detail).  By attaching `&& 0 {}` at the end, we change the final value of the line, preventing that duplication of input in awk script output.
 
+## Awkward Portability
+
+A nicer approach would be broad implementation for a POSIX standard version of either awk or env that behaves appropriately for a portable awk shebang line.  Until that day comes -- with both POSIX standard support and sufficiently broad implementation support -- various other forms of trickery may come close.  The following example of another bit of such trickery employs an awk wrapper script.  Create an executable file in your `$PATH` with the following contents:
+
+    #!/bin/sh
+    awk -f $@
+
+Call this file "awkward", in the same sense that "starward" means "at or toward the stars".  With that in place, this shebang line works well:
+
+    #!/usr/bin/env awkward
+
+You're welcome.
+
 <p class="subtitle signature">by <strong>apotheon</strong> and <strong>zenema</strong</p>
 
 [gilles]: https://unix.stackexchange.com/questions/361794/why-am-i-able-to-pass-arguments-to-usr-bin-env-in-this-case#answer-361796
