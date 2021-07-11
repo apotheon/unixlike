@@ -2,29 +2,29 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     
         <url>
-            <loc>http://127.0.0.1:1111/</loc>
+            <loc>https://unixlike.us/</loc>
             
         </url>
     
         <url>
-            <loc>http://127.0.0.1:1111/about/</loc>
+            <loc>https://unixlike.us/about/</loc>
             
         </url>
     
         <url>
-            <loc>http://127.0.0.1:1111/doc/</loc>
+            <loc>https://unixlike.us/doc/</loc>
             
         </url>
     
         <url>
-            <loc>http://127.0.0.1:1111/doc/awk-scripting/</loc>
+            <loc>https://unixlike.us/doc/awk-scripting/</loc>
             
                 <lastmod>2021-07-09</lastmod>
             
         </url>
     
         <url>
-            <loc>http://127.0.0.1:1111/doc/openbsd-battery-warning-config/</loc>
+            <loc>https://unixlike.us/doc/openbsd-battery-warning-config/</loc>
             
                 <lastmod>2020-12-02</lastmod>
             
