@@ -27,8 +27,8 @@
 
 
       <div class="content">
-        <p>The awk scripting language is an oft-overlooked tool in the Unix toolkit.  One (harmful) consequence of this state of affairs is the invention of Bash, as awk is the natural fit for that niche between sh and a more generalized programming language.</p>
-<p>One might be forgiven for thinking awk is actually unsuitable for portable scripting, though, and thus coming to the conclusion that one might as well just write a Bash script.  After all, even if Bash is not readily available everywhere (thus destroying some level of portability), at least you can use a shebang line for Bash scripts that is portable on any system that has Bash installed:</p>
+        <p>The awk scripting language is an oft-overlooked tool in the Unix toolkit.  One (<a href="https://blogstrapping.com/2013.271.13.19.30/">harmful</a>) consequence of this state of affairs is the invention of Bash, as awk is the natural fit for that niche between sh and a more generalized programming language.</p>
+<p>You might be forgiven for thinking awk is actually unsuitable for portable scripting, though, and thus coming to the conclusion that you might as well just write a Bash script.  After all, even if Bash is not readily available everywhere (thus destroying some level of portability), at least you can use a shebang line for Bash scripts that is portable on any system that has Bash installed:</p>
 <pre><code>#!/usr/bin/env bash
 </code></pre>
 <p>Doing the same with awk does not work.  A working awk shebang line depends on where awk is installed on the system.  Compare two common examples:</p>
@@ -36,35 +36,43 @@
 
 #!/usr/bin/awk -f
 </code></pre>
-<p>The problem here is obvious: without env, you need a different shebang line, which means the script itself must be edited to port it between systems with different &quot;standards&quot; for filesystem placement of tools such as awk.  Obviously, the One True Way to organize the filesystem hierarchy would result in the <code>#!/usr/bin/awk -f</code> shebang line, but some less Unix-like systems clearly violate such standards of good taste.</p>
-<p>Most Unix-like systems do not handle options well enough to include the <code>-f</code> option in an <code>env</code> based shebang line, so we're stuck.  We can't have a portable awk script executed simply by filename in <code>$PATH</code>.</p>
-<p>Actually, we can.  &quot;Think outside the box.&quot;  If you never had a teacher tell you that, you never had a real teacher.</p>
-<p><a href="https://unix.stackexchange.com/questions/361794/why-am-i-able-to-pass-arguments-to-usr-bin-env-in-this-case#answer-361796">Harvested from StackExchange</a> (yes, occasionally there's something useful in that cesspool), we find this beauty of indirection:</p>
+<p>The problem here is hopefully obvious: without env, you need different shebang lines on systems that store the awk executable in different locations, which means the script itself must be edited to port it between systems with different &quot;standards&quot; for placement of tools such as awk within the filesystem.  Obviously, the One True Way to organize the filesystem hierarchy would result in the <code>#!/usr/bin/awk -f</code> shebang line, but some less-Unixy systems clearly violate such standards of good taste.</p>
+<p>Most Unix-like systems do not handle options well enough to include the <code>-f</code> option in an <code>env</code> based shebang line, so perhaps you're stuck.  It seems you can't have a portable awk script executed simply by filename in <code>$PATH</code>.</p>
+<p>Actually, you can.  &quot;Think outside the box.&quot;  If you never had a teacher tell you that, you may never have had a real teacher.</p>
+<p>As <a href="https://unix.stackexchange.com/questions/361794/why-am-i-able-to-pass-arguments-to-usr-bin-env-in-this-case#answer-361796">harvested from StackExchange</a> (yes, occasionally there's something useful in that cesspool), you may find this beauty of indirection useful:</p>
 <pre><code>#!/bin/sh
 &quot;exec&quot; &quot;awk&quot; &quot;-f&quot; &quot;$0&quot; &quot;$@&quot; &amp;&amp; 0 {}
 </code></pre>
-<p>That's right: we can get around this problem by using a standard shell shebang line and executing awk from within the script.  (See that page for a note about truly ancient Unices.)</p>
+<p>That's right: you can get around this problem by using a standard shell shebang line and executing awk from within the script.  (See that StackExchange page for a note about truly ancient Unices, then ignore it if you don't absolutely have to port it to something obsolete.)</p>
 <p>The line immediately following the shebang line might need a little more explanation.  Assume a file with the above shebang line trickery with the name <code>example.awk</code>.</p>
-<p>First of all, both lines are valid POSIX standard shell and valid POSIX standard awk at the same time.  When executed, the <code>sh</code> executable gets invoked to interpret the contents of the file, which leads to invoking the shell's <code>exec</code> builtin, which in turn replaces the shell process with the awk process created by its own following argument, <code>awk</code>, with <code>-f</code> as its first parameter; that option takes a filename argument.  In this case, the argument <code>$0</code> specifies the the <code>example.awk</code> file, and <code>$@</code> passes along any positional parameters following the user's initial command line input of the filename.  Thus, assume the user entered this:</p>
+<p>First, note that both lines are valid POSIX standard shell and valid POSIX standard awk at the same time.  When executed, the <code>sh</code> executable gets invoked to interpret the contents of the file, which leads to invoking the shell's <code>exec</code> builtin, which in turn replaces the shell process with the awk process created by its own following argument, <code>awk</code>, with <code>-f</code> as its first parameter; that option takes a filename argument.  In this case, the argument <code>$0</code> specifies the <code>example.awk</code> file, and <code>$@</code> passes along any positional parameters following the user's initial command line input of the filename.  Thus, assume the user entered this:</p>
 <pre><code>$ example.awk foo bar
 </code></pre>
 <p>In that case, <code>$0</code> gets replaced by <code>example.awk</code>, and <code>$@</code> gets replaced by <code>foo bar</code>.</p>
-<p>In short, the entire above process becomes the following stepwise process.</p>
+<p>In short, the entire above process becomes the following stepwise process:</p>
 <ol>
-<li>Execute <code>/bin/sh</code> with arguments <code>foo bar</code> and feed it the contents of this file to interpret and execute.</li>
-<li>Replace variables with their values, so that the line following the shebang becomes <code>&quot;exec&quot; &quot;awk&quot; &quot;-f&quot; &quot;example.awk&quot; &quot;foo&quot; &quot;bar&quot; &amp;&amp; 0 {}</code></li>
-<li>Execute the <code>exec</code> command to replace the <code>sh</code> process with a new <code>awk</code> process, with arguments <code>-f example.awk foo bar</code>, specifying <code>example.awk</code> as the script file <code>awk</code> should read and passing <code>foo bar</code> along as a paramter for the script.</li>
+<li>
+<p>Execute <code>/bin/sh</code> with arguments <code>foo bar</code> and feed it the contents of this file to interpret and execute.</p>
+</li>
+<li>
+<p>Replace variables with their values, so that the line following the shebang becomes <code>&quot;exec&quot; &quot;awk&quot; &quot;-f&quot; &quot;example.awk&quot; &quot;foo&quot; &quot;bar&quot; &amp;&amp; 0 {}</code></p>
+</li>
+<li>
+<p>Execute the <code>exec</code> command to replace the <code>sh</code> process with a new <code>awk</code> process, with arguments <code>-f example.awk foo bar</code>, specifying <code>example.awk</code> (as the script file <code>awk</code> should read) and passing <code>foo bar</code> along as paramters for the script.</p>
+</li>
 </ol>
-<p>In awk syntax, the shebang line itself is discarded as a comment.  The following line contains a series of strings, which means that line would result in producing a nonzero value, which would result in default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this article: learn awk for more detail).  By attaching <code>&amp;&amp; 0 {}</code> at the end, we change the final value of the line, preventing that duplication of input in awk script output.</p>
+<p>In awk syntax, the shebang line itself is discarded as a comment.  The line following it contains a series of strings, which means that line would result in producing a nonzero value, which would result in awk default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this article: learn the awk language for more details).  The <code>&amp;&amp; 0 {}</code> attached at the end changes the final value of the line, preventing that duplication of input in awk script output.</p>
+<p>For the sake of completeness:</p>
+<p>The <code>&amp;&amp;</code> operator's semantics result in the return value of the entire line being falsy (<code>0</code> is falsy in this context) so that awk will not translate a truthy value in a directive to print duplicate output lines in later code.  The following <code>{}</code> defines an empty awk function as the first source code input to the <code>awk</code> process parsing the file, and signals to that process that an awk script has begun, ensuring a 0 return value for the entire process if something else doesn't go wrong.  If any of this doesn't seem clearer than mud, check a reputable awk manpage, such as that of OpenBSD awk.</p>
 <h2 id="awkward-portability">Awkward Portability</h2>
-<p>A nicer approach would be broad implementation for a POSIX standard version of either awk or env that behaves appropriately for a portable awk shebang line.  Until that day comes -- with both POSIX standard support and sufficiently broad implementation support -- various other forms of trickery may come close.  The following example of another bit of such trickery employs an awk wrapper script.  Create an executable file in your <code>$PATH</code> with the following contents:</p>
+<p>A nicer approach to solving the awk shebang line portability problem would involve broad implementation of a POSIX standard version of either awk or env that behaves appropriately, perhaps by allowing contextual script execution without <code>-f</code>, or better argument handling by env.  Until the day that solution arrives -- with both POSIX standard support and sufficiently broad implementation support -- various other forms of trickery may come close.  One of us (the authors: in this case apotheon) cobbled togethr the following kludgey solution for improved portability, before the other stumbled across the POSIX shell approach above.  The following example of this alternative shebang line trickery employs an exceedingly simple awk wrapper script.  Create an executable file in your <code>$PATH</code> with the following contents:</p>
 <pre><code>#!/bin/sh
 awk -f $@
 </code></pre>
 <p>Call this file &quot;awkward&quot;, in the same sense that &quot;starward&quot; means &quot;at or toward the stars&quot;.  With that in place, this shebang line works well:</p>
 <pre><code>#!/usr/bin/env awkward
 </code></pre>
-<p>You're welcome.</p>
+<p>You're welcome.  Please don't use it if the sh shebang line solution works for your needs.</p>
 <p class="subtitle signature">by <strong>apotheon</strong> and <strong>zenema</strong</p>
 
 
