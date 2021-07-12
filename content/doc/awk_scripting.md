@@ -5,7 +5,7 @@ date = 2021-07-09
 
 The awk scripting language is an oft-overlooked tool in the Unix toolkit.  One ([harmful][harmful]) consequence of this state of affairs may be the invention of Bash, as awk is the natural fit for that scripting niche between sh and a more generalized programming language.
 
-DISCLAIMER: We'll refer to "POSIX" sh within this document.  The term is inexact, but about as close to the reality of what we mean as it seems possible to get without inventing new words or inflating the size of this article tenfold.  Learn to live with it.
+> DISCLAIMER: We refer to "POSIX" sh within this document.  The term is inexact, but about as close to the reality of what we mean as it seems possible to get without inventing new words or inflating the size of this document tenfold.  What we really mean involves a portable subset of any common POSIXish shell identified as `/bin/sh` on any remotely sane Unixy system.  This is, indeed, a very imprecise definition.  Learn to live with it.
 
 You might be forgiven for thinking awk is actually unsuitable for portable scripting, though, and thus coming to the conclusion that you might as well just write a Bash script.  After all, even if Bash is not readily available everywhere (thus destroying some level of portability), at least you can use a shebang line for Bash scripts that is portable on any system that has Bash installed:
 
@@ -46,7 +46,7 @@ In short, the entire above process becomes the following stepwise process:
 
 3. Execute the `exec` command to replace the `sh` process with a new `awk` process, with arguments `-f example.awk foo bar`, specifying `example.awk` (as the script file `awk` should read) and passing `foo bar` along as paramters for the script.
 
-In awk syntax, the shebang line itself is discarded as a comment.  The line following it contains a series of strings, which means that line would result in producing a nonzero value, which would result in awk default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this article: learn the awk language for more details).  The `&& 0 {}` attached at the end changes the final value of the line, preventing that duplication of input in awk script output.
+In awk syntax, the shebang line itself is discarded as a comment.  The line following it contains a series of strings, which means that line would result in producing a nonzero value, which would result in awk default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this document: learn the awk language for more details).  The `&& 0 {}` attached at the end changes the final value of the line, preventing that duplication of input in awk script output.
 
 ## Awkward Portability
 
