@@ -3,7 +3,7 @@ title = 'scripting with awk'
 date = 2021-07-09
 +++
 
-The awk scripting language is an oft-overlooked tool in the Unix toolkit.  One ([harmful][harmful]) consequence of this state of affairs is the invention of Bash, as awk is the natural fit for that niche between sh and a more generalized programming language.
+The awk scripting language is an oft-overlooked tool in the Unix toolkit.  One ([harmful][harmful]) consequence of this state of affairs may be the invention of Bash, as awk is the natural fit for that scripting niche between sh and a more generalized programming language.
 
 You might be forgiven for thinking awk is actually unsuitable for portable scripting, though, and thus coming to the conclusion that you might as well just write a Bash script.  After all, even if Bash is not readily available everywhere (thus destroying some level of portability), at least you can use a shebang line for Bash scripts that is portable on any system that has Bash installed:
 
