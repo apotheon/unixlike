@@ -55,7 +55,7 @@ The `&&` operator's semantics result in the return value of the entire line bein
 A nicer approach to solving the awk shebang line portability problem would involve broad implementation of a POSIX standard version of either awk or env that behaves appropriately, perhaps by allowing contextual script execution without `-f`, or better argument handling by env.  Until the day that solution arrives -- with both POSIX standard support and sufficiently broad implementation support -- various other forms of trickery may come close.  One of us (the authors: in this case apotheon) cobbled togethr the following kludgey solution for improved portability, before the other stumbled across the POSIX shell approach above.  The following example of this alternative shebang line trickery employs an exceedingly simple awk wrapper script.  Create an executable file in your `$PATH` with the following contents:
 
     #!/bin/sh
-    awk -f $@
+    awk -f "$@"
 
 Call this file "awkward", in the same sense that "starward" means "at or toward the stars".  With that in place, this shebang line works well:
 
