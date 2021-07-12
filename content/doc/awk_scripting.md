@@ -46,10 +46,6 @@ In short, the entire above process becomes the following stepwise process:
 
 In awk syntax, the shebang line itself is discarded as a comment.  The line following it contains a series of strings, which means that line would result in producing a nonzero value, which would result in awk default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this article: learn the awk language for more details).  The `&& 0 {}` attached at the end changes the final value of the line, preventing that duplication of input in awk script output.
 
-For the sake of completeness:
-
-The `&&` operator's semantics result in the return value of the entire line being falsy (`0` is falsy in this context) so that awk will not translate a truthy value in a directive to print duplicate output lines in later code.  The following `{}` defines an empty awk function as the first source code input to the `awk` process parsing the file, and signals to that process that an awk script has begun, ensuring a 0 return value for the entire process if something else doesn't go wrong.  If any of this doesn't seem clearer than mud, check a reputable awk manpage, such as that of OpenBSD awk.
-
 ## Awkward Portability
 
 A nicer approach to solving the awk shebang line portability problem would involve broad implementation of a POSIX standard version of either awk or env that behaves appropriately, perhaps by allowing contextual script execution without `-f`, or better argument handling by env.  Until the day that solution arrives -- with both POSIX standard support and sufficiently broad implementation support -- various other forms of trickery may come close.  One of us (the authors: in this case apotheon) cobbled togethr the following kludgey solution for improved portability, before the other stumbled across the POSIX shell approach above.  The following example of this alternative shebang line trickery employs an exceedingly simple awk wrapper script.  Create an executable file in your `$PATH` with the following contents:
