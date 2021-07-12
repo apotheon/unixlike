@@ -63,7 +63,7 @@ Call this file "awkward", in the same sense that "starward" means "at or toward 
 
 You're welcome.  Please don't use it if the sh shebang line solution works for your needs.
 
-<p class="subtitle signature">by <strong>apotheon</strong> and <strong>zenema</strong</p>
+<p class="subtitle signature">by <strong>apotheon</strong> and <strong>zenema</strong></p>
 
 [gilles]: https://unix.stackexchange.com/questions/361794/why-am-i-able-to-pass-arguments-to-usr-bin-env-in-this-case#answer-361796
 
