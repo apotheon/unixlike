@@ -28,6 +28,7 @@
 
       <div class="content">
         <p>The awk scripting language is an oft-overlooked tool in the Unix toolkit.  One (<a href="https://blogstrapping.com/2013.271.13.19.30/">harmful</a>) consequence of this state of affairs may be the invention of Bash, as awk is the natural fit for that scripting niche between sh and a more generalized programming language.</p>
+<p>DISCLAIMER: We'll refer to &quot;POSIX&quot; sh within this document.  The term is inexact, but about as close to the reality of what we mean as it seems possible to get without inventing new words or inflating the size of this article tenfold.  Learn to live with it.</p>
 <p>You might be forgiven for thinking awk is actually unsuitable for portable scripting, though, and thus coming to the conclusion that you might as well just write a Bash script.  After all, even if Bash is not readily available everywhere (thus destroying some level of portability), at least you can use a shebang line for Bash scripts that is portable on any system that has Bash installed:</p>
 <pre><code>#!/usr/bin/env bash
 </code></pre>
