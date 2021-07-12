@@ -63,7 +63,7 @@ You're welcome.  Please don't use it if the sh shebang line solution works for y
 
 ## Blame
 
-All errors are apotheon's fault; it was apotheon who performed wrote the final draft.
+All errors are apotheon's fault; it was apotheon who wrote the final draft.
 
 <p class="subtitle signature">by <strong>apotheon</strong> and <strong>zenema</strong></p>
 
