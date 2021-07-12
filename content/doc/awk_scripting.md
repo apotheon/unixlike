@@ -46,7 +46,15 @@ In short, the entire above process becomes the following stepwise process:
 
 3. Execute the `exec` command to replace the `sh` process with a new `awk` process, with arguments `-f example.awk foo bar`, specifying `example.awk` (as the script file `awk` should read) and passing `foo bar` along as paramters for the script.
 
-In awk syntax, the shebang line itself is discarded as a comment.  The line following it contains a series of strings, which means that line would result in producing a nonzero value, which would result in awk default behavior of printing current input an extra time during execution (explaining this is beyond the scope of this document: learn the awk language for more details).  The `&& 0 {}` attached at the end changes the final value of the line, preventing that duplication of input in awk script output.
+The following explanation of how the `exec` line works is essentially a brief introduction to the awk language.  Buckle your seatbelts.
+
+The syntax of awk is basically a series of two constructs: comments, and pattern/action pairs.  A pattern is evaluated for truth or falsehood.  If true, awk executes the following action; if false, it does not.  A missing pattern is considered true.  A missing action, or an empty action, is treated as a print action: `{ print }`.  If a pattern is always true regardless of input, awk will apply the associated action to every subsequent line of input, in addition to any other operations performed by later pattern/action pairs (such as printing lines of input, resulting in printing multiples of each line).
+
+In the above shebang portability hack, the awk parser discards the shebang line itself as a comment (because it starts with `#`).  The next line contains a series of strings, which could constitute an awk pattern on its own that produces a true value.  The series of strings is part of a larger pattern, however, and not a stand-alone pattern in this case.  The larger pattern is two sub-patterns joined by a test condition (the logical "and" operator: `&&`).
+
+If the sub-pattern preceding `&&` was false, awk would not evaluate the right-hand sub-pattern but, because it is true in this case, it does.  The right-hand side, `0`, evaluates as false, and this is the final value of the whole pattern.  The false value ensures the specified action never executes, avoiding the inconvenience of the script portability hack implicitly instructing awk to print all input.
+
+Including an empty action does not appear necessary for POSIX correctness because awk should treat a missing action as a print action anyway.  To make the empty action even less relevant, the false value of the preceding pattern is zero, so the `{}` action should never execute, and an efficient parser should ignore it altogether.  Despite this, some awk implementations will insert `{}` or `{ print }` behind your back if it's missing, and some implementations may behave poorly without a specified action here.  It seems best to keep the empty action in your file for maximum portability assurance, even if the end (and desired) result is that awk never executes the action.  Besides, it looks more like proper awk syntax with an explicit action.
 
 ## Awkward Portability
 
