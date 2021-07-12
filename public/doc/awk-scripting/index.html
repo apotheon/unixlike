@@ -67,7 +67,7 @@
 <h2 id="awkward-portability">Awkward Portability</h2>
 <p>A nicer approach to solving the awk shebang line portability problem would involve broad implementation of a POSIX standard version of either awk or env that behaves appropriately, perhaps by allowing contextual script execution without <code>-f</code>, or better argument handling by env.  Until the day that solution arrives -- with both POSIX standard support and sufficiently broad implementation support -- various other forms of trickery may come close.  One of us (the authors: in this case apotheon) cobbled togethr the following kludgey solution for improved portability, before the other stumbled across the POSIX shell approach above.  The following example of this alternative shebang line trickery employs an exceedingly simple awk wrapper script.  Create an executable file in your <code>$PATH</code> with the following contents:</p>
 <pre><code>#!/bin/sh
-awk -f $@
+awk -f &quot;$@&quot;
 </code></pre>
 <p>Call this file &quot;awkward&quot;, in the same sense that &quot;starward&quot; means &quot;at or toward the stars&quot;.  With that in place, this shebang line works well:</p>
 <pre><code>#!/usr/bin/env awkward
