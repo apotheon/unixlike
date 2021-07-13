@@ -20,9 +20,3 @@ According to Mike Gancarz:
 > 1. Use shell scripts to increase leverage and portability.</li>
 > 1. Avoid captive user interfaces.</li>
 > 1. Make every program a filter.</li>
-
-The prior domain maintainer's content for this domain can (at the time I wrote this) be found on the Wayback Machine, archived from 2013:
-
-[unix-like@us][webarchive]
-
-[webarchive]: https://web.archive.org/web/20130818060432/http://unixlike.us/
